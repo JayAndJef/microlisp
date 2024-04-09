@@ -1,7 +1,8 @@
 use crate::lexer::TokenKind;
 
-#[derive(Debug, PartialEq)]
-pub enum Object { // TODO add nil literal
+#[derive(Debug, PartialEq, Clone)]
+pub enum Object {
+    // TODO add nil literal
     Void,
     Integer(i64),
     Float(f64),
@@ -17,11 +18,10 @@ pub struct ParseError(String);
 fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
     let top = tokens.pop().unwrap();
     if top != TokenKind::LParen {
-        Err::<Object, ParseError>(ParseError(format!("Expected Start of list, found {:?}", top)));
+        ParseError(format!("Expected Start of list, found {:?}", top));
     }
 
     let mut built_list = Vec::new();
-
     while let Some(top) = tokens.last() {
         built_list.push(match top {
             TokenKind::Integer(i) => Object::Integer(*i),
@@ -30,19 +30,18 @@ fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
             TokenKind::LParen => parse(tokens)?, // take that nerd
             TokenKind::RParen => {
                 return Ok(Object::List(built_list));
-            },
+            }
         });
         tokens.pop();
-    } 
+    }
 
     Ok(Object::List(built_list))
 }
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::Object::*;
+    use super::*;
     use crate::lexer::TokenKind;
 
     #[test]
@@ -58,15 +57,12 @@ mod tests {
                 TokenKind::Float(3.5),
                 TokenKind::Symbol("*".to_string()),
                 TokenKind::LParen,
-            ]).unwrap(),
+            ])
+            .unwrap(),
             List(vec![
                 Symbol("*".to_string()),
                 Float(3.5),
-                List(vec![
-                    Symbol("+".to_string()),
-                    Integer(1),
-                    Integer(2),
-                ])
+                List(vec![Symbol("+".to_string()), Integer(1), Integer(2),])
             ])
         )
     }
