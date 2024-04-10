@@ -14,7 +14,7 @@ pub enum Object {
 #[derive(Debug)]
 pub struct ParseError(String);
 
-fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
+pub fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
     let top = tokens.pop().unwrap();
     if top != TokenKind::LParen {
         ParseError(format!("Expected Start of list, found {:?}", top));

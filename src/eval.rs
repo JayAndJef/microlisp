@@ -1,4 +1,4 @@
-use std::{borrow, cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::parser::Object;
 
@@ -34,10 +34,9 @@ pub fn eval_object(object: &Object, scope: &mut Rc<RefCell<Scope>>) -> Result<Ob
         Object::Void => Ok(Object::Void),
         Object::Lambda(_p, _b, ) => Ok(Object::Void),
         Object::Bool(_) => Ok(object.clone()),
-        Object::Float(n) => Ok(Object::Float(*n)),
         Object::Float(f) => Ok(Object::Float(*f)),
         Object::Symbol(s) => eval_symbol(s, scope),
-        Object::List(_) => todo!(),
+        Object::List(l) => eval_list(l, scope),
     }
 }
 
@@ -49,7 +48,8 @@ pub fn eval_symbol(symbol: &str, scope: &mut Rc<RefCell<Scope>>) -> Result<Objec
     }
 }
 
-pub fn eval_list(list: Vec<Object>, scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
+pub fn eval_list(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
+    dbg!("In eval list", &list[0]);
     match &list[0] {
         Object::Symbol(s) => match s.as_str() {
             "+" | "-" | "*" | "/" | "<" | ">" | "=" | "!=" => {
@@ -60,7 +60,17 @@ pub fn eval_list(list: Vec<Object>, scope: &mut Rc<RefCell<Scope>>) -> Result<Ob
             "lambda" => eval_lambda(&list[1..]), // eval lambda declaration
             _ => eval_function_call(s, &list[1..], scope), // eval function call. builtins must be populated
         },
-        _ => Ok(eval_object(list.last().unwrap(), scope)?)
+        _ => {
+            let mut new_list = Vec::new();
+            for obj in list {
+                let result = eval_object(obj, scope)?;
+                match result {
+                    Object::Void => {}
+                    _ => new_list.push(result),
+                }
+            }
+            Ok(Object::List(new_list))
+        }
     }
 }
 
@@ -94,6 +104,7 @@ pub fn eval_op(function: &str, body: &[Object], scope: &mut Rc<RefCell<Scope>>) 
 }
 
 pub fn eval_definition(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
+    dbg!("in eval definition");
     if list.len() % 2 != 0 {
         return Err("Expected even number of definitions".to_string());
     } else if list.is_empty() {

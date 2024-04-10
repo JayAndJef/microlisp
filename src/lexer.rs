@@ -1,7 +1,7 @@
 
 pub fn tokenize(source: &str) -> Vec<String> {
-    source.replace("(", " ( ")
-        .replace(")", " ) ")
+    source.replace('(', " ( ")
+        .replace(')', " ) ")
         .split_whitespace()
         .map(|x| x.to_string())
         .collect()
