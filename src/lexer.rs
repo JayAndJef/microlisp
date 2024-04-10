@@ -11,7 +11,6 @@ pub fn tokenize(source: &str) -> Vec<String> {
 pub enum TokenKind {
     LParen,
     RParen,
-    Integer(i64),
     Float(f64),
     Symbol(String),
 }
@@ -27,9 +26,7 @@ pub fn lex_single_token(token: &str) -> TokenKind {
         "(" => TokenKind::LParen,
         ")" => TokenKind::RParen,
         _ => {
-            if let Ok(int) = token.parse::<i64>() {
-                TokenKind::Integer(int)
-            } else if let Ok(float) = token.parse::<f64>() {
+            if let Ok(float) = token.parse::<f64>() {
                 TokenKind::Float(float)
             } else {
                 TokenKind::Symbol(token.to_string())
@@ -58,7 +55,7 @@ mod tests {
             [
                 LParen,
                 Symbol("+".to_string()),
-                Integer(2),
+                Float(2.0),
                 Float(3.4),
                 RParen,
             ]

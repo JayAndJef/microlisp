@@ -4,7 +4,6 @@ use crate::lexer::TokenKind;
 pub enum Object {
     // TODO add nil literal
     Void,
-    Integer(i64),
     Float(f64),
     Bool(bool),
     Symbol(String),
@@ -24,7 +23,6 @@ fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
     let mut built_list = Vec::new();
     while let Some(top) = tokens.last() {
         built_list.push(match top {
-            TokenKind::Integer(i) => Object::Integer(*i),
             TokenKind::Float(f) => Object::Float(*f),
             TokenKind::Symbol(s) => Object::Symbol(s.to_string()),
             TokenKind::LParen => parse(tokens)?, // take that nerd
@@ -50,8 +48,8 @@ mod tests {
             parse(&mut vec![
                 TokenKind::RParen,
                 TokenKind::RParen,
-                TokenKind::Integer(2),
-                TokenKind::Integer(1),
+                TokenKind::Float(2.0),
+                TokenKind::Float(1.0),
                 TokenKind::Symbol("+".to_string()),
                 TokenKind::LParen,
                 TokenKind::Float(3.5),
@@ -62,7 +60,7 @@ mod tests {
             List(vec![
                 Symbol("*".to_string()),
                 Float(3.5),
-                List(vec![Symbol("+".to_string()), Integer(1), Integer(2),])
+                List(vec![Symbol("+".to_string()), Float(1.0), Float(2.0),])
             ])
         )
     }

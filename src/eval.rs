@@ -186,6 +186,6 @@ mod tests {
 
     #[test]
     fn test_bin_op() {
-        
+        todo!();
     }
 }
