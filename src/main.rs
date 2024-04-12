@@ -1,4 +1,4 @@
-use std::{cell::RefCell, env, fs, intrinsics::prefetch_write_instruction, rc::Rc};
+use std::{cell::RefCell, env, fs, rc::Rc};
 
 use eval::{eval_object, Scope};
 use lexer::{lex, tokenize};
