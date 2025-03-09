@@ -1,3 +1,4 @@
+/// Splits a source string into tokens for the lexer
 pub fn tokenize(source: &str) -> Vec<String> {
     source
         .replace('(', " ( ")
@@ -7,18 +8,25 @@ pub fn tokenize(source: &str) -> Vec<String> {
         .collect()
 }
 
+/// Different token types that can be produced by the lexer
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {
+    /// Left parenthesis '('
     LParen,
+    /// Right parenthesis ')'
     RParen,
+    /// Floating-point numeric value
     Float(f64),
+    /// Symbol or identifier string
     Symbol(String),
 }
 
+/// Converts a sequence of string tokens into typed TokenKind values
 pub fn lex(tokens: &[String]) -> Vec<TokenKind> {
     tokens.iter().map(|t| lex_single_token(t)).collect()
 }
 
+/// Converts a single string token into its appropriate TokenKind
 pub fn lex_single_token(token: &str) -> TokenKind {
     match token {
         "(" => TokenKind::LParen,

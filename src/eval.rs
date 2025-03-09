@@ -2,6 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::parser::Object;
 
+/// Represents a variable scope with symbol bindings and optional parent scope
 #[derive(Debug, PartialEq, Default)]
 pub struct Scope {
     parent: Option<Rc<RefCell<Scope>>>,
@@ -9,6 +10,7 @@ pub struct Scope {
 }
 
 impl Scope {
+    /// Creates a new scope that extends a parent scope
     pub fn extend(parent_scope: Rc<RefCell<Self>>) -> Self {
         Self {
             parent: Some(parent_scope),
@@ -16,6 +18,7 @@ impl Scope {
         }
     }
 
+    /// Retrieves a value from the scope or its parent scopes
     pub fn get(&self, key: &str) -> Option<Object> {
         match self.values.get(key) {
             Some(v) => Some(v.clone()),
@@ -23,11 +26,13 @@ impl Scope {
         }
     }
 
+    /// Sets a value in the current scope
     pub fn set(&mut self, key: &str, value: Object) {
         self.values.insert(key.to_string(), value);
     }
 }
 
+/// Evaluates a microlisp object in the given scope
 pub fn eval_object(object: &Object, scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
     match object {
         Object::Void => Ok(Object::Void),
@@ -39,6 +44,7 @@ pub fn eval_object(object: &Object, scope: &mut Rc<RefCell<Scope>>) -> Result<Ob
     }
 }
 
+/// Evaluates a symbol by looking up its value in the scope
 pub fn eval_symbol(symbol: &str, scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
     match scope.borrow_mut().get(symbol) {
         Some(o) => Ok(o.clone()),
@@ -46,6 +52,7 @@ pub fn eval_symbol(symbol: &str, scope: &mut Rc<RefCell<Scope>>) -> Result<Objec
     }
 }
 
+/// Evaluates a list, which could be a special form or function call
 pub fn eval_list(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
     dbg!("In eval list", &list[0]);
     match &list[0] {
@@ -70,6 +77,7 @@ pub fn eval_list(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Obje
     }
 }
 
+/// Evaluates a binary operation such as +, -, *, /, <, >, =, or !=
 pub fn eval_op(
     function: &str,
     body: &[Object],
@@ -103,6 +111,7 @@ pub fn eval_op(
     }
 }
 
+/// Evaluates a definition expression (define ...)
 pub fn eval_definition(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
     dbg!("in eval definition");
     if list.len() % 2 != 0 {
@@ -126,6 +135,7 @@ pub fn eval_definition(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Resul
     Ok(eval_object(list.last().unwrap(), scope).unwrap())
 }
 
+/// Evaluates a conditional expression (if ...)
 pub fn eval_if(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object, String> {
     if list.len() != 3 {
         return Err("Expected 3 items in if expression".to_string());
@@ -139,6 +149,7 @@ pub fn eval_if(list: &[Object], scope: &mut Rc<RefCell<Scope>>) -> Result<Object
     eval_object(&list[if cond { 1 } else { 2 }], scope)
 }
 
+/// Evaluates a lambda expression and returns a Lambda object
 pub fn eval_lambda(list: &[Object]) -> Result<Object, String> {
     if list.len() != 2 {
         return Err("Lambda definition should have an parameter list and a body".to_string());
@@ -167,6 +178,7 @@ pub fn eval_lambda(list: &[Object]) -> Result<Object, String> {
     Ok(Object::Lambda(params, body))
 }
 
+/// Evaluates a function call by looking up the function and applying it to arguments
 pub fn eval_function_call(
     name: &str,
     arguments: &[Object],

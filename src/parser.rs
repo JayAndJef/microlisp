@@ -1,13 +1,19 @@
 use crate::lexer::TokenKind;
 
+/// Represents a microlisp language object
 #[derive(Debug, PartialEq, Clone)]
 pub enum Object {
-    // TODO add nil literal
+    /// Represents no value or void
     Void,
+    /// Floating-point number
     Float(f64),
+    /// Boolean value
     Bool(bool),
+    /// Symbol or identifier
     Symbol(String),
+    /// Lambda function with parameters and body
     Lambda(Vec<String>, Vec<Object>),
+    /// List of objects
     List(Vec<Object>),
 }
 
@@ -15,6 +21,10 @@ pub enum Object {
 #[derive(Debug)]
 pub struct ParseError(String);
 
+/// Parses a sequence of tokens into a nested Object structure
+/// 
+/// Takes a mutable vector of tokens and converts them into the appropriate
+/// Object representation, handling nested expressions recursively
 pub fn parse(tokens: &mut Vec<TokenKind>) -> Result<Object, ParseError> {
     let top = tokens.pop().unwrap();
     if top != TokenKind::LParen {
