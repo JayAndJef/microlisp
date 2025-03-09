@@ -11,6 +11,7 @@ pub enum Object {
     List(Vec<Object>),
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ParseError(String);
 

@@ -1,6 +1,6 @@
-
 pub fn tokenize(source: &str) -> Vec<String> {
-    source.replace('(', " ( ")
+    source
+        .replace('(', " ( ")
         .replace(')', " ) ")
         .split_whitespace()
         .map(|x| x.to_string())
@@ -16,9 +16,7 @@ pub enum TokenKind {
 }
 
 pub fn lex(tokens: &[String]) -> Vec<TokenKind> {
-    tokens.iter()
-        .map(|t| lex_single_token(t))
-        .collect()
+    tokens.iter().map(|t| lex_single_token(t)).collect()
 }
 
 pub fn lex_single_token(token: &str) -> TokenKind {
